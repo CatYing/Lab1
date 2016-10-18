@@ -123,6 +123,8 @@ def command_exam(command, user, varlis):
        return False
    else:
        return Dic
+       #SE
+       #B1SE
 # def command_exam(command, user, varlis):
 #     """
 #     :param command:用户输入的命令
