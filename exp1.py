@@ -148,19 +148,25 @@ def command_exam(command, user, varlis):
 #         return False
 #
 #
-# def expression_exam(user_input):
-#     index = 0
-#
-#     while index < len(user_input) - 1:
-#
-#         if user_input[index].isdigit() and user_input[index + 1].isalpha():
-#             user_input = user_input[:index + 1] + '*' + user_input[index + 1:]
-#         if not (is_valid(user_input[index]) and is_valid(user_input[index + 1])):
-#             raise_error("Invalid Input")
-#             return False
-#         index = index + 1
-#    
-#     return final_expression
+def expression_exam(user_input):
+    index = 0
+
+    while index < len(user_input) - 1:
+
+        if user_input[index].isdigit() and user_input[index + 1].isalpha():
+            user_input = user_input[:index + 1] + '*' + user_input[index + 1:]
+        if not (is_valid(user_input[index]) and is_valid(user_input[index + 1])):
+            raise_error("Invalid Input")
+            return False
+        index = index + 1
+    final_expression = user_input
+    # 幂运算运算符替换
+    if '^' in user_input:
+        final_expression = user_input.replace('^', '**')
+    # 减号处理
+    if '-' in user_input:
+        final_expression = user_input.replace('-', '+-')
+    return final_expression
 
 
 def varlis_exam(corret_expression):
@@ -300,4 +306,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
