@@ -1,12 +1,12 @@
 # coding=utf8
 import re
 import copy
-
-simplify_pattern = re.compile(r'(?P<var_name>[a-zA-Z]+)\s*=\s*(?P<var_value>\d+)')
+simplify_pattern = re.compile(
+    r'(?P<var_name>[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]+)\s*=\s*(?P<var_value>\d+)')
 
 
 class Term(object):
-    def __init__(self, num, dic):
+    def __init__(self,num,dic):
         self.Num = num
         self.Dict = dic
 
@@ -26,7 +26,7 @@ class Term(object):
             self.Num *= __tmp
             self.Dict[var] = __tmp - 1
 
-    def to_string(self):
+    def tostr(self):
         st = str(self.Num)
         for k in self.Dict:
             if self.Dict[k] == 0:
@@ -37,19 +37,18 @@ class Term(object):
 
 
 class Expression(object):
-    def __init__(self, result, tup):
-        self.Sum = result
+    def __init__(self,sum,tup):
+        self.Sum = sum
         self.Tup = tup
-
     def eva(self, known):
         res = ''
         for i in self.Tup:
-            term = Term(i[0], i[1])
+            term = Term(i[0],i[1])
             term.eva(known)
-            st = term.to_string()
+            st = term.tostr()
             try:
                 self.Sum += float(st)
-            except ValueError:
+            except:
                 res = res + st + '+'
 
         res += str(self.Sum)
@@ -58,10 +57,10 @@ class Expression(object):
     def diff(self, var):
         res = ''
         for i in self.Tup:
-            term = Term(i[0], i[1])
+            term = Term(i[0],i[1])
             if var in term.Dict:
                 term.diff(var)
-                st = term.to_string()
+                st = term.tostr()
                 res = res + st + '+'
             else:
                 pass
@@ -70,8 +69,6 @@ class Expression(object):
 
 
 def command_or_expression(user):
-    if user == "#####":
-        return 4
     # 命令
     if user.startswith('!simplify'):
         return 1
@@ -100,36 +97,32 @@ def is_symbol(char):
 def raise_error(error_message):
     print error_message
 
-
-def command_exam(command, user, var_list):
-    """
-    :param command:用户输入的命令
-    :param user:用户输入的原始表达式
-    :param var_list:变量列表
-    :return:
-    """
-    # 赋值过程
-    count = 0
-    var_dict = {}
-    simplify_match = simplify_pattern.finditer(command)
-    if simplify_match:
-        for match in simplify_match:
-            if match.group('var_name') not in var_list:
-                raise_error("No such variable")
-            else:
-                try:
-                    var_dict[match.group('var_name')] = float(match.group('var_value'))
-                except ValueError:
-                    raise_error('Invalid value')
-            count += 1
-    if not count:
-        print user
-        raise_error('Nothing variable')
-        return False
-    else:
-        return var_dict
-
-
+def command_exam(command, user, varlis):
+   """
+   :param command:用户输入的命令
+   :param user:用户输入的原始表达式
+   :return:
+   """
+   # 赋值过程
+   count = 0
+   Dic = {}
+   simplify_match = simplify_pattern.finditer(command)
+   if simplify_match:
+       for match in simplify_match:
+           if match.group('var_name') not in varlis:
+               raise_error("No such variable")
+           else:
+               try:
+                   Dic[match.group('var_name')] = float(match.group('var_value'))
+               except:
+                   raise_error('Invalid value')
+           count += 1
+   if not count:
+       print user
+       raise_error('Nothing variable')
+       return False
+   else:
+       return Dic
 # def command_exam(command, user, varlis):
 #     """
 #     :param command:用户输入的命令
@@ -154,8 +147,7 @@ def command_exam(command, user, var_list):
 #         raise_error('Nothing variable')
 #         return False
 #
-
-
+#
 def expression_exam(user_input):
     index = 0
 
@@ -166,7 +158,7 @@ def expression_exam(user_input):
         if not (is_valid(user_input[index]) and is_valid(user_input[index + 1])):
             raise_error("Invalid Input")
             return False
-        index += 1
+        index = index + 1
     final_expression = user_input
     # 幂运算运算符替换
     if '^' in user_input:
@@ -177,21 +169,21 @@ def expression_exam(user_input):
     return final_expression
 
 
-def var_list_exam(correct_expression):
+def varlis_exam(corret_expression):
     index = 1
     name = ''
     lis = []
-    while index < len(correct_expression):
-        if correct_expression[index - 1].isalpha():
-            name += correct_expression[index - 1]
-            if not correct_expression[index].isalpha():
+    while index < len(corret_expression):
+        if corret_expression[index - 1].isalpha():
+            name += corret_expression[index - 1]
+            if not corret_expression[index].isalpha():
                 if name in lis:
                     pass
                 else:
                     lis.append(name)
                 name = ''
-        if index == len(correct_expression) - 1 and correct_expression[index].isalpha():
-            name += correct_expression[index]
+        if index == len(corret_expression) - 1 and corret_expression[index].isalpha():
+            name += corret_expression[index]
             if name in lis:
                 pass
             else:
@@ -204,58 +196,58 @@ def var_list_exam(correct_expression):
 
 
 def data_exam(final_expression):
-    add_list = final_expression.split('+')
-    result = 0
-    data_list = []
-    for i in add_list:
+    addlis = final_expression.split('+')
+    sum = 0
+    datalist = []
+    for i in addlis:
         try:
-            result += eval(i)
-        except NameError:
-            multiple_list = i.split('*')
+            sum += eval(i)
+        except:
+            multilis = i.split('*')
             num = 1
             dic = {}
             j = 0
-            while j < (len(multiple_list)) - 1:
-                if multiple_list[j].isalpha() and multiple_list[j] not in dic:
-                    if multiple_list[j + 1] == '':
-                        dic[multiple_list[j]] = int(multiple_list[j + 2])
-                        j += 2
+            while j < (len(multilis)) - 1:
+                if multilis[j].isalpha() and multilis[j] not in dic:
+                    if multilis[j + 1] == '':
+                        dic[multilis[j]] = int(multilis[j + 2])
+                        j = j + 2
                     else:
-                        dic[multiple_list[j]] = 1
+                        dic[multilis[j]] = 1
 
-                elif multiple_list[j].isalpha() and multiple_list[j] in dic:
-                    if multiple_list[j + 1] == '':
-                        dic[multiple_list[j]] += int(multiple_list[j + 2])
-                        j += 2
+                elif multilis[j].isalpha() and multilis[j] in dic:
+                    if multilis[j + 1] == '':
+                        dic[multilis[j]] += int(multilis[j + 2])
+                        j = j + 2
                     else:
-                        dic[multiple_list[j]] += 1
+                        dic[multilis[j]] += 1
                 else:
                     try:
-                        num *= float(multiple_list[j])
-                    except ValueError:
+                        num *= float(multilis[j])
+                    except:
                         pass
                 j += 1
-            if multiple_list[-1].isalpha():
+            if multilis[-1].isalpha():
 
-                if multiple_list[-1] not in dic:
-                    dic[multiple_list[-1]] = 1
+                if multilis[-1] not in dic:
+                    dic[multilis[-1]] = 1
                 else:
-                    dic[multiple_list[-1]] += 1
-            elif multiple_list[-1].isdigit() and j < len(multiple_list):
-                num *= multiple_list[-1]
+                    dic[multilis[-1]] += 1
+            elif multilis[-1].isdigit() and j < len(multilis):
+                num *= multilis[-1]
 
-            data_list.append((int(num), dic))
+            datalist.append((int(num), dic))
 
-    return result, tuple(data_list)
+    return (sum, tuple(datalist))
 
 
-def diff_exam(diff_expression, var_list):
+def diff_exam(diff_expression, varlis):
     try:
         var = diff_expression.split(' ')[1]
-    except IndexError:
+    except:
         raise_error("No such variable")
         return False
-    if var in var_list:
+    if var in varlis:
         return var
     else:
         raise_error("No such variable")
@@ -264,17 +256,18 @@ def diff_exam(diff_expression, var_list):
 
 def main():
     main_expression = ''
-    main_data_final = ()
-    var_list = []
+    main_data = ()
+    main_data_final=()
+    varlis = []
     while True:
         main_user_input = raw_input('>')
         if command_or_expression(main_user_input) == 3:
             main_expression = expression_exam(main_user_input)
             if main_expression:
                 print main_expression
-                var_list = var_list_exam(main_expression)
-                # print var_list
-                if not var_list:
+                varlis = varlis_exam(main_expression)
+                # print varlis
+                if varlis == []:
                     print eval(main_expression)
                     main_expression = ''
                     continue
@@ -286,30 +279,28 @@ def main():
                 main_expression = ''
 
         elif command_or_expression(main_user_input) == 2:
-            var = diff_exam(main_user_input, var_list)
+            var = diff_exam(main_user_input, varlis)
             if var:
                 main_data = copy.deepcopy(main_data_final)
-                # print  main_data
-                e = Expression(main_data[0], main_data[1])
+                #print  main_data
+                e = Expression(main_data[0],main_data[1])
                 print e.diff(var).replace("**", "^")
             else:
                 pass
         elif command_or_expression(main_user_input) == 1:
-            dic = command_exam(main_user_input, main_expression, var_list)
+            dic = command_exam(main_user_input, main_expression, varlis)
             if dic:
                 main_data = copy.deepcopy(main_data_final)
-                # print main_data
-                e = Expression(main_data[0], main_data[1])
-                res = e.eva(dic).replace("**", "^")
+                #print main_data
+                e = Expression(main_data[0],main_data[1])
+                res=e.eva(dic).replace("**", "^")
                 try:
                     print eval(res)
-                except NameError or ValueError:
+                except:
                     print res
 
             else:
                 pass
-        elif command_or_expression(main_user_input) == 4:
-            break
     return 0
 
 
