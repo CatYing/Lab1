@@ -127,29 +127,29 @@ def command_exam(command, user, var_list):
         return var_dict
 
 
-def command_exam(command, user, varlis):
-    """
-    :param command:用户输入的命令
-    :param user:用户输入的原始表达式
-    :return:
-    """
-    # 赋值过程
-    Dic = {}
-    simplify_match = simplify_pattern.finditer(command)
-    if simplify_match:
-        for match in simplify_match:
-            if match.group('var_name') not in varlis:
-                raise_error("No such variable")
-            else:
-                try:
-                    Dic[match.group('var_name')] = float(match.group('var_value'))
-                except:
-                    raise_error('Invalid value')
-        return Dic
-    else:
-        print user
-        raise_error('Nothing variable')
-        return False
+# def command_exam(command, user, var_list):
+#     """
+#     :param command:用户输入的命令
+#     :param user:用户输入的原始表达式
+#     :return:
+#     """
+#     # 赋值过程
+#     Dic = {}
+#     simplify_match = simplify_pattern.finditer(command)
+#     if simplify_match:
+#         for match in simplify_match:
+#             if match.group('var_name') not in var_list:
+#                 raise_error("No such variable")
+#             else:
+#                 try:
+#                     Dic[match.group('var_name')] = float(match.group('var_value'))
+#                 except:
+#                     raise_error('Invalid value')
+#         return Dic
+#     else:
+#         print user
+#         raise_error('Nothing variable')
+#         return False
 
 
 def expression_exam(user_input):
