@@ -93,6 +93,7 @@ class Solution(object):
         self.acceptable_expression = ""
         self.data = ()
         self.var_list = []
+        self.var_dict = {}
 
     def command_or_expression(self):
         """
@@ -226,6 +227,7 @@ class Solution(object):
             raise_error("No variable")
             return False
         else:
+            self.var_dict = var_dict
             return var_dict
 
     def diff_var(self):
@@ -240,4 +242,29 @@ class Solution(object):
             raise_error("Error!")
             return False
 
+    def setup(self):
+        # 处理表达式
+        self.generate_expression()
+        self.generate_var_list()
+        self.generate_var_data()
+        # 化简
+        if self.command_or_expression() == 1:
+            self.generate_var_value()
+            if self.var_dict:
+                main_data = self.data
+                e = Expression(main_data[0], main_data[1])
+                res = e.eva(self.var_dict).replace("**", "^")
+                try:
+                    return str(eval(res))
+                except:
+                    return res
+        elif self.command_or_expression() == 2:
+            var = self.diff_var()
+            if var:
+                main_data = self.data
+                e = Expression(main_data[0], main_data[1])
+                return e.diff(var).replace("**", "^")
+
+if __name__ == "__main__":
+    print Solution("3x+2y", "!simplify x=2, y=3").setup()
 
