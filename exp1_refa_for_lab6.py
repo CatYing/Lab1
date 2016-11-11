@@ -85,33 +85,35 @@ class Expression(object):
 
 
 class Solution(object):
-    def __init__(self, user_input):
+    def __init__(self, user_input_expression, user_input_command):
         """
         :param user_input:用户输入的原始字符串
         """
-        self.user_input = user_input
+        self.user_input_expression = user_input_expression
+        self.user_input_command = user_input_command
         self.expression = ""
         self.command = ""
         self.acceptable_expression = ""
         self.data = {}
+        self.var_list = []
 
     def command_or_expression(self):
         """
         :return 1: 化简
         :return 2: 求导
-        :return 3: 非法
+        :return 3: 表达式
         :return 4: 结束循环
         """
-        if self.user_input == "#####":
+        if self.user_input_expression == "#####" or self.user_input_command == "#####":
             return 4
-        elif self.user_input.startswith("!simplify"):
-            self.command = self.user_input
+        elif self.user_input_command.startswith("!simplify"):
+            self.command = self.user_input_command
             return 1
-        elif self.user_input.startswith("!d/d"):
-            self.command = self.user_input
+        elif self.user_input_command.startswith("!d/d"):
+            self.command = self.user_input_command
             return 2
         else:
-            self.expression = self.command
+            self.expression = self.user_input_expression
             return 3
 
     def generate_expression(self):
@@ -128,35 +130,34 @@ class Solution(object):
             index += 1
         acceptable_expression = self.expression
         # 幂运算处理
-        if '^' in self.user_input:
+        if '^' in self.user_input_expression:
             acceptable_expression = self.expression.replace('^', '**')
         # 减号处理
-        if '-' in self.user_input:
+        if '-' in self.user_input_expression:
             acceptable_expression = acceptable_expression.replace('-', '+-')
 
         self.acceptable_expression = acceptable_expression
 
         return acceptable_expression
 
-    def generate_var_list(self, acceptable_expression):
+    def generate_var_list(self):
         """
-        :param acceptable_expression: 可接受的字符串
         :return: 变量列表
         """
         index = 1
         name = ""
         var_list = []
-        while index < len(acceptable_expression):
-            if acceptable_expression[index - 1].isalpha():
-                name += acceptable_expression[index - 1]
-                if not acceptable_expression[index].isalpha():
+        while index < len(self.acceptable_expression):
+            if self.acceptable_expression[index - 1].isalpha():
+                name += self.acceptable_expression[index - 1]
+                if not self.acceptable_expression[index].isalpha():
                     if name in var_list:
                         pass
                     else:
                         var_list.append(name)
                     name = ""
-            if index == len(acceptable_expression) - 1 and acceptable_expression[index].isalpha():
-                name += acceptable_expression[index]
+            if index == len(self.acceptable_expression) - 1 and self.acceptable_expression[index].isalpha():
+                name += self.acceptable_expression[index]
                 if name in var_list:
                     pass
                 else:
@@ -165,10 +166,11 @@ class Solution(object):
             else:
                 pass
             index += 1
+        self.var_list = var_list
         return var_list
 
-    def generate_var_data(self, acceptable_expression):
-        add_list = acceptable_expression.split('+')
+    def generate_var_data(self):
+        add_list = self.acceptable_expression.split('+')
         result = 0
         data_list = []
         for i in add_list:
@@ -208,13 +210,13 @@ class Solution(object):
                 data_list.append((int(num), dic))
         return result, tuple(data_list)
 
-    def generate_var_value(self, var_list):
+    def generate_var_value(self):
         count = 0
         var_dict = {}
         simplify_match = simplify_pattern.finditer(self.command)
         if simplify_match:
             for match in simplify_match:
-                if match.group('var_name') not in var_list:
+                if match.group('var_name') not in self.var_list:
                     raise_error("No such variable")
                 else:
                     try:
@@ -228,17 +230,16 @@ class Solution(object):
         else:
             return var_dict
 
-    def diff_var(self, var_list):
+    def diff_var(self):
         try:
-            var = self.user_input.split(" ")[1]
+            var = self.command.split(" ")[1]
         except IndexError:
             raise_error("Error!")
             return False
-        if var in var_list:
+        if var in self.var_list:
             return var
         else:
             raise_error("Error!")
             return False
 
-    def parse(self):
 
