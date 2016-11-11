@@ -86,15 +86,12 @@ class Expression(object):
 
 class Solution(object):
     def __init__(self, user_input_expression, user_input_command):
-        """
-        :param user_input:用户输入的原始字符串
-        """
         self.user_input_expression = user_input_expression
         self.user_input_command = user_input_command
         self.expression = ""
         self.command = ""
         self.acceptable_expression = ""
-        self.data = {}
+        self.data = ()
         self.var_list = []
 
     def command_or_expression(self):
@@ -208,6 +205,7 @@ class Solution(object):
                 elif multiple_list[-1].isdigit() and j < len(multiple_list):
                     num *= multiple_list[-1]
                 data_list.append((int(num), dic))
+        self.data = result, tuple(data_list)
         return result, tuple(data_list)
 
     def generate_var_value(self):
